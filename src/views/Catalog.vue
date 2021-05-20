@@ -1,57 +1,22 @@
 <template lang="pug">
 .catalog__container
+  CountryListTable(:tableData="countriesAPIResp" v-if="countriesAPIResp.length")
 </template>
 
 <script lang="ts">
-interface countryRespInterface {
-  name: string,
-  topLevelDomain: string[],
-  alpha2Code: string,
-  alpha3Code: string,
-  callingCodes: string[],
-  capital: string,
-  altSpellings: string[],
-  region: string,
-  subregion: string,
-  population: number,
-  latlng: number[],
-  demonym: string,
-  area: number,
-  gini: number,
-  timezones: string[],
-  borders: string[],
-  nativeName: string,
-  numericCode: string,
-  currencies: {
-    code: string,
-    name: string,
-    symbol: string
-  }[],
-  languages: {
-    iso639_1: string,
-    iso639_2: string,
-    name: string,
-    nativeName: string
-  }[],
-  translations: {
-    [name: string]: string
-  },
-  flag: string,
-  regionalBlocs: {
-    acronym: string,
-    name: string,
-    otherAcronyms: string[],
-    otherName: string[]
-  }[],
-  cioc: string
-}
-
-
-
+import CountryRespInterface from '@/interface/CountryRespInterface';
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
-@Component
+
+import CountryListTable from '@/components/CountryListTable.vue';
+
+@Component({
+  components: {
+    CountryListTable
+  }
+})
+
 export default class Catalog extends Vue {
-  private countriesAPIResp !:countryRespInterface[];
+  private countriesAPIResp: CountryRespInterface[] = [];
 
   public created() {
     // get country list via API
@@ -65,3 +30,11 @@ export default class Catalog extends Vue {
 }
 
 </script>
+
+<style lang="scss">
+.catalog__container {
+  width: 100%;
+  height: 100%;
+  padding: 25px;
+}
+</style>
