@@ -12,7 +12,7 @@
     .table__content__row(v-for="(countryData, idx) in tableData" :key="idx")
       span.table__cell__1
         img.svg__flag(:src="countryData.flag")
-      span.table__cell__2 {{ countryData.name }}
+      span.table__cell__2(@click="onCountryNameClick(idx)") {{ countryData.name }}
       span.table__cell__2 {{ countryData.alpha2Code }}
       span.table__cell__2 {{ countryData.alpha3Code }}
       span.table__cell__2 {{ countryData.nativeName }}
@@ -24,13 +24,18 @@
 
 <script lang='ts'>
 import CountryRespInterface from '@/interface/CountryRespInterface';
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+import { Component, Prop, Vue, Emit, Watch } from 'vue-property-decorator';
 
 @Component({
   name: 'countryListTable'
 })
 export default class CountryListTable extends Vue {
   @Prop({}) private tableData!: CountryRespInterface[] | undefined;
+
+  @Emit('submit-open-detail-event')
+  onCountryNameClick(idx: number) {
+    if (this.tableData) return this.tableData[idx];
+  }
 }
 </script>
 
@@ -54,7 +59,6 @@ export default class CountryListTable extends Vue {
 
 .country-list-table {
   width: 100%;
-  height: 100%;
 }
 
 .table {

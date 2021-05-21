@@ -10,7 +10,11 @@
     .searching__input__wrapper
       input.searching__input(v-model="searchingKeyWords" placeholder="請輸入欲搜尋的國家名稱")
   .table__list__wrapper
-    CountryListTable(:tableData="showingData" v-if="countriesAPIResp.length")
+    CountryListTable(
+      :tableData="showingData"
+      v-if="countriesAPIResp.length"
+      @submit-open-detail-event="onOpenDetailEventHandler"
+    )
   .pagination__wrapper
     .pagination__button(
       :class="{ pagination__button__disable: currentPage <= 1}"
@@ -21,6 +25,11 @@
       :class="{ pagination__button__disable: currentPage + 1 > Math.ceil(filteredData.length / 25)}"
       @click="updateCurrentPage(1)"
     ) 下一頁
+  CountryDataModel(
+    :countryData="countryDetail"
+    :class="{ showing: isShowingDetail, hidden: !isShowingDetail }"
+    @submit-close-detail-event="onCloseDetailEventHandler"
+  )
 </template>
 
 <script lang="ts">
@@ -28,10 +37,12 @@ import CountryRespInterface from '@/interface/CountryRespInterface';
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 
 import CountryListTable from '@/components/CountryListTable.vue';
+import CountryDataModel from '@/components/CountryDataModel.vue';
 
 @Component({
   components: {
-    CountryListTable
+    CountryListTable,
+    CountryDataModel
   }
 })
 
@@ -39,7 +50,9 @@ export default class Catalog extends Vue {
   private countriesAPIResp: CountryRespInterface[] = [];
   private filteredData: CountryRespInterface[] = [];
   private showingData: CountryRespInterface[] = [];
+  private countryDetail: CountryRespInterface | null = null;
 
+  private isShowingDetail: boolean = false;
   private isDesc: boolean = false;
   private searchingKeyWords: string = '';
   private currentPage: number = 1;
@@ -108,6 +121,16 @@ export default class Catalog extends Vue {
         behavior: 'smooth'
       });
     }
+  }
+
+  private onOpenDetailEventHandler(data: CountryRespInterface) {
+    this.isShowingDetail = true;
+    this.countryDetail = data;
+  }
+
+  private onCloseDetailEventHandler() {
+    this.isShowingDetail = false;
+    this.countryDetail = null;
   }
 }
 
@@ -257,6 +280,14 @@ $pagination__height: 70px;
         }
       }
     }
+  }
+
+  .showing {
+    display: block;
+  }
+
+  .hidden {
+    display: none;
   }
 }
 </style>

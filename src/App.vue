@@ -11,7 +11,6 @@
 html, body {
   margin: 0 auto;
   width: 100%;
-  height: 100%;
 }
 
 #app {
@@ -21,6 +20,5 @@ html, body {
   text-align: center;
   
   width: 100%;
-  height: 100%;
 }
 </style>
