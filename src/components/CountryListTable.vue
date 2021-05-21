@@ -74,6 +74,10 @@ export default class CountryListTable extends Vue {
 
   &__content {
     background-color: #efefef;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: auto;
+
     &__row {
       width: 100%;
       min-height: 60px;

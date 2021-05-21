@@ -9,7 +9,18 @@
       span 倒序
     .searching__input__wrapper
       input.searching__input(v-model="searchingKeyWords" placeholder="請輸入欲搜尋的國家名稱")
-  CountryListTable(:tableData="showingData" v-if="countriesAPIResp.length")
+  .table__list__wrapper
+    CountryListTable(:tableData="showingData" v-if="countriesAPIResp.length")
+  .pagination__wrapper
+    .pagination__button(
+      :class="{ pagination__button__disable: currentPage <= 1}"
+      @click="updateCurrentPage(-1)"
+    ) 上一頁
+    span {{ `${currentPage} / ${Math.ceil(filteredData.length / 25)}` }}
+    .pagination__button(
+      :class="{ pagination__button__disable: currentPage + 1 > Math.ceil(filteredData.length / 25)}"
+      @click="updateCurrentPage(1)"
+    ) 下一頁
 </template>
 
 <script lang="ts">
@@ -26,20 +37,31 @@ import CountryListTable from '@/components/CountryListTable.vue';
 
 export default class Catalog extends Vue {
   private countriesAPIResp: CountryRespInterface[] = [];
+  private filteredData: CountryRespInterface[] = [];
   private showingData: CountryRespInterface[] = [];
 
   private isDesc: boolean = false;
   private searchingKeyWords: string = '';
+  private currentPage: number = 1;
 
   @Watch('searchingKeyWords')
   onSearchingKeyWordsChanged(value: string, oldValue: string) {
+    this.currentPage = 1;
     this.filterData(value);
     this.sortData(this.isDesc);
+    this.getSpecPageData(this.currentPage)
   }
 
   @Watch('isDesc')
   onIsDescChanged(value: boolean, oldValue: boolean) {
+    this.currentPage = 1;
     this.sortData(value);
+    this.getSpecPageData(this.currentPage)
+  }
+
+  @Watch('currentPage')
+  onCurrentPageChanged(value: number, oldValue: number) {
+    this.getSpecPageData(value);
   }
 
   public created() {
@@ -48,19 +70,20 @@ export default class Catalog extends Vue {
       return response.json()
     }).then((jsonResp) => {
       this.countriesAPIResp = jsonResp;
-      this.showingData = JSON.parse(JSON.stringify(this.countriesAPIResp));
+      this.filteredData = JSON.parse(JSON.stringify(this.countriesAPIResp));
       this.sortData(this.isDesc);
+      this.getSpecPageData(this.currentPage);
     }) 
   }
 
   private filterData(countryName: string) {
-    this.showingData = this.countriesAPIResp.filter((countryData) => {
-      return countryData.name.includes(countryName)
+    this.filteredData = this.countriesAPIResp.filter((countryData) => {
+      return countryData.name.toLowerCase().includes(countryName.toLowerCase())
     })
   }
 
   private sortData(isDesc: boolean) {
-    this.showingData = this.showingData.sort((a, b) => {
+    this.filteredData = this.filteredData.sort((a, b) => {
       if (isDesc) {
         return a.name < b.name ? 1 : -1
       } else {
@@ -68,11 +91,32 @@ export default class Catalog extends Vue {
       }
     })
   }
+
+  private getSpecPageData(page: number) {
+    let begin: number = 25 * (page - 1);
+    this.showingData = this.filteredData.slice(begin, begin + 25);
+  }
+
+  private updateCurrentPage(modifyNum: number) {
+    if (
+      this.currentPage + modifyNum > 0 &&
+      this.currentPage + modifyNum <= Math.ceil(this.filteredData.length / 25)
+    ) {
+      this.currentPage += modifyNum;
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  }
 }
 
 </script>
 
 <style lang="scss">
+$function__bar__height: 40px;
+$pagination__height: 70px;
+
 .catalog__container {
   width: 100%;
   height: 100%;
@@ -81,6 +125,7 @@ export default class Catalog extends Vue {
   .function__bar {
     width: 100%;
     margin-bottom: 20px;
+    min-height: $function__bar__height;
     display: flex;
     justify-content: flex-end;
     flex-wrap: wrap;
@@ -175,6 +220,40 @@ export default class Catalog extends Vue {
         &::placeholder {
           color: #bbb;
           font-size: 14px;
+        }
+      }
+    }
+  }
+
+  .pagination__wrapper {
+    width: 100%;
+    height: $pagination__height;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .pagination__button {
+      margin: 0 10px;
+      padding: 5px 25px;
+      border: 1px solid #afafaf;
+      background-color: #efefef;
+      color: #666;
+      font-weight: 500;
+      border-radius: 7px;
+      cursor: pointer;
+
+      transition: .4s;
+      &:hover {
+        background-color: #afafaf;
+        color: white;
+      }
+
+      &__disable {
+        cursor: not-allowed;
+        opacity: 0.3; 
+        &:hover {
+          background-color: #efefef;
+          color: #666;
         }
       }
     }
