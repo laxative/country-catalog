@@ -1,25 +1,54 @@
 <template lang="pug">
 .country-list-table
   .table__header
-    span.table__cell__1
-    span.table__cell__2 國家名稱
-    span.table__cell__2 國家代碼(2位)
-    span.table__cell__2 國家代碼(3位)
-    span.table__cell__2 母語名稱
-    span.table__cell__2 替代國家名稱
-    span.table__cell__1 國際電話區號
+    //- header title only show in laptop
+    .table__content__laptop
+      span.table__cell__1
+      span.table__cell__2 國家名稱
+      span.table__cell__2 國家代碼(2位)
+      span.table__cell__2 國家代碼(3位)
+      span.table__cell__2 母語名稱
+      span.table__cell__2 替代國家名稱
+      span.table__cell__1 國際電話區號
   .table__content
     .table__content__row(v-for="(countryData, idx) in tableData" :key="idx")
-      span.table__cell__1
-        img.svg__flag(:src="countryData.flag")
-      span.table__cell__2(@click="onCountryNameClick(idx)") {{ countryData.name }}
-      span.table__cell__2 {{ countryData.alpha2Code }}
-      span.table__cell__2 {{ countryData.alpha3Code }}
-      span.table__cell__2 {{ countryData.nativeName }}
-      .table__cell__2.alt-spelling__wrapper
-        span(v-for="(altSpelling, spellingIdx) in countryData.altSpellings" :key="spellingIdx") {{ altSpelling }}
-      .table__cell__1.calling-codes__wrapper
-        span(v-for="(callingCode, codeIdx) in countryData.callingCodes" :key="codeIdx") {{ callingCode }}
+      //- laptop style
+      .table__content__laptop
+        span.table__cell__1
+          img.svg__flag(:src="countryData.flag")
+        span.table__cell__2.table__cell__click__element(@click="onCountryNameClick(idx)") {{ countryData.name }}
+        span.table__cell__2 {{ countryData.alpha2Code }}
+        span.table__cell__2 {{ countryData.alpha3Code }}
+        span.table__cell__2 {{ countryData.nativeName }}
+        .table__cell__2.alt-spelling__wrapper
+          span(v-for="(altSpelling, spellingIdx) in countryData.altSpellings" :key="spellingIdx") {{ altSpelling }}
+        .table__cell__1.calling-codes__wrapper
+          span(v-for="(callingCode, codeIdx) in countryData.callingCodes" :key="codeIdx") {{ callingCode }}
+      //- mobile style
+      .table__content__mobile
+        span.table__cell__2
+          img.svg__flag(:src="countryData.flag")
+        .table__cell__10
+          .table__cell__mobile__content__wrapper
+            span.table__cell__5 國家名稱
+            span.table__cell__7.table__cell__click__element(@click="onCountryNameClick(idx)") {{ countryData.name }}
+          .table__cell__mobile__content__wrapper
+            span.table__cell__5 國家代碼(2位)
+            span.table__cell__7 {{ countryData.alpha2Code }}
+          .table__cell__mobile__content__wrapper
+            span.table__cell__5 國家代碼(3位)
+            span.table__cell__7 {{ countryData.alpha3Code }}
+          .table__cell__mobile__content__wrapper
+            span.table__cell__5 母語名稱
+            span.table__cell__7 {{ countryData.nativeName }}
+          .table__cell__mobile__content__wrapper
+            span.table__cell__5 替代國家名稱
+            span.table__cell__7.alt-spelling__wrapper
+              span(v-for="(altSpelling, spellingIdx) in countryData.altSpellings" :key="spellingIdx") {{ altSpelling }}
+          .table__cell__mobile__content__wrapper
+            span.table__cell__5 國際電話區號
+            span.table__cell__7.calling-codes__wrapper
+              span(v-for="(callingCode, codeIdx) in countryData.callingCodes" :key="codeIdx") {{ callingCode }}
 </template>
 
 <script lang='ts'>
@@ -57,6 +86,33 @@ export default class CountryListTable extends Vue {
 .table__cell__11 { @include table__cell(11) }
 .table__cell__12 { @include table__cell(12) }
 
+.table__cell__click__element {
+  cursor: pointer;
+  color: blue;
+  text-decoration: underline;
+  transition: all .2s ease;
+
+  &:hover {
+    color: red;
+  }
+}
+
+.table__content__laptop, .table__cell__mobile__content__wrapper {
+  display: flex;
+  align-items: stretch;
+  text-align: left;
+}
+
+.table__cell__mobile__content__wrapper > * {
+  display: flex;
+  align-items: center;
+}
+
+.table__cell__mobile__content__wrapper > *:first-child {
+  padding-right: 10px;
+  text-align: right;
+}
+
 .country-list-table {
   width: 100%;
 }
@@ -66,14 +122,17 @@ export default class CountryListTable extends Vue {
     width: 100%;
     min-height: 40px;
     padding: 5px;
+    text-align: left;
 
     display: flex;
     justify-content: space-evenly;
-    align-items: center;
+    align-items: stretch;
 
     background-color: steelblue;
     color: white;
     font-weight: bold;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
   }
 
   &__content {
@@ -84,14 +143,28 @@ export default class CountryListTable extends Vue {
 
     &__row {
       width: 100%;
-      min-height: 60px;
-      display: flex;
-      // justify-content: space-evenly;
-      align-items: center;
-      
       padding: 5px;
       border-bottom: 1px solid #666;
     }
+
+    &__laptop, &__mobile {
+      width: 100%;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+    }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .table__content__laptop {
+    display: none;
+  }
+}
+
+@media screen and (min-width: 769px) {
+  .table__content__mobile {
+    display: none;
   }
 }
 
@@ -102,7 +175,15 @@ export default class CountryListTable extends Vue {
 
 .alt-spelling__wrapper, .calling-codes__wrapper {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+
+  > * {
+    &:not(:first-child) {
+      &:before {
+        content: ', ';
+      }
+    }
+  }
 }
 
 </style>

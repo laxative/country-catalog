@@ -1,8 +1,8 @@
 <template lang="pug">
 .model
   .model__row(v-for="(title, keyIdx) in dataKeys")
-    .model__title.table__cell__2 {{ title }}
-    .model__content.table__cell__10 {{ countryData[title] }}
+    .model__title.table__cell__3 {{ title }}
+    .model__content.table__cell__9 {{ countryData[title] }}
   .model__close__button(@click="onClickEvent") 關閉
 </template>
 
@@ -60,6 +60,7 @@ export default class CountryListTable extends Vue {
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, .75);
+  word-break: break-all;
 
   overflow-y: scroll;
   overflow-x: none;
@@ -67,8 +68,7 @@ export default class CountryListTable extends Vue {
   &__row {
     width: 100%;
     display: flex;
-    align-items: center;
-    background-color: rgb(38, 134, 70);
+    align-items: stretch;
     margin-bottom: 1px;
   }
 
@@ -82,6 +82,7 @@ export default class CountryListTable extends Vue {
     background-color: rgb(38, 134, 70);
     color: white;
     justify-content: center;
+    padding: 3px;
   }
 
   &__content {
@@ -97,5 +98,13 @@ export default class CountryListTable extends Vue {
   padding: 10px;
   color: #fff;
   border: 1px solid #fff;
+  opacity: .5;
+  cursor: pointer;
+
+  transition: all .3s ease;
+
+  &:hover {
+    opacity: 1;
+  }
 }
 </style>
