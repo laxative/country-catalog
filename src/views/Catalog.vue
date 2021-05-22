@@ -1,35 +1,38 @@
 <template lang="pug">
 .catalog__container
-  .function__bar
-    .sorting__switch__wrapper
-      span 正序
-      label.switch
-        input(type="checkbox" v-model="isDesc")
-        span.slider.round
-      span 倒序
-    .searching__input__wrapper
-      input.searching__input(v-model="searchingKeyWords" placeholder="請輸入欲搜尋的國家名稱")
-  .table__list__wrapper
-    CountryListTable(
-      :tableData="showingData"
-      v-if="countriesAPIResp.length"
-      @submit-open-detail-event="onOpenDetailEventHandler"
+  .container__wrapper(v-if="countriesAPIResp.length")
+    .function__bar
+      .sorting__switch__wrapper
+        span 正序
+        label.switch
+          input(type="checkbox" v-model="isDesc")
+          span.slider.round
+        span 倒序
+      .searching__input__wrapper
+        input.searching__input(v-model="searchingKeyWords" placeholder="請輸入欲搜尋的國家名稱")
+    .table__list__wrapper
+      CountryListTable(
+        :tableData="showingData"
+        @submit-open-detail-event="onOpenDetailEventHandler"
+      )
+    .pagination__wrapper
+      .pagination__button(
+        :class="{ pagination__button__disable: currentPage <= 1}"
+        @click="updateCurrentPage(-1)"
+      ) 上一頁
+      span {{ `${currentPage} / ${Math.ceil(filteredData.length / 25)}` }}
+      .pagination__button(
+        :class="{ pagination__button__disable: currentPage + 1 > Math.ceil(filteredData.length / 25)}"
+        @click="updateCurrentPage(1)"
+      ) 下一頁
+    CountryDataModel(
+      :countryData="countryDetail"
+      :class="{ showing: isShowingDetail, hidden: !isShowingDetail }"
+      @submit-close-detail-event="onCloseDetailEventHandler"
     )
-  .pagination__wrapper
-    .pagination__button(
-      :class="{ pagination__button__disable: currentPage <= 1}"
-      @click="updateCurrentPage(-1)"
-    ) 上一頁
-    span {{ `${currentPage} / ${Math.ceil(filteredData.length / 25)}` }}
-    .pagination__button(
-      :class="{ pagination__button__disable: currentPage + 1 > Math.ceil(filteredData.length / 25)}"
-      @click="updateCurrentPage(1)"
-    ) 下一頁
-  CountryDataModel(
-    :countryData="countryDetail"
-    :class="{ showing: isShowingDetail, hidden: !isShowingDetail }"
-    @submit-close-detail-event="onCloseDetailEventHandler"
-  )
+  .waiting__page(v-else)
+    .waiting__animation
+    p waiting
 </template>
 
 <script lang="ts">
@@ -288,6 +291,41 @@ $pagination__height: 70px;
 
   .hidden {
     display: none;
+  }
+}
+
+.waiting__page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .waiting__animation {
+    width: 70px;
+    height: 70px;
+    background-color: green;
+
+    animation: waiting_animation 2s infinite;
+  }
+}
+
+@keyframes waiting_animation {
+  100% {
+    transform: rotate(0deg);
+    border-radius: 0;
+  }
+  50% {
+    transform: rotate(180deg);
+    border-radius: 50%;
+  }
+  0% {
+    transform: rotate(360deg);
+    border-radius: 0;
   }
 }
 </style>
